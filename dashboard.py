@@ -52,6 +52,60 @@ def get_custom_css():
                 border: 1px solid #4a5568;
             }
             
+            /* Fix Streamlit metric cards in dark mode */
+            .stMetric {
+                background-color: rgba(45, 55, 72, 0.8) !important;
+                padding: 1rem !important;
+                border-radius: 10px !important;
+                border: 1px solid #4a5568 !important;
+            }
+            
+            .stMetric > div {
+                color: #e2e8f0 !important;
+            }
+            
+            .stMetric [data-testid="metric-container"] {
+                background-color: rgba(45, 55, 72, 0.9) !important;
+                border: 1px solid #4a5568 !important;
+                border-radius: 10px !important;
+                padding: 1rem !important;
+            }
+            
+            .stMetric [data-testid="metric-container"] > div {
+                color: #e2e8f0 !important;
+            }
+            
+            .stMetric label {
+                color: #cbd5e0 !important;
+                font-weight: 600 !important;
+            }
+            
+            .stMetric [data-testid="metric-container"] div[data-testid="metric-label"] {
+                color: #cbd5e0 !important;
+            }
+            
+            .stMetric [data-testid="metric-container"] div[data-testid="metric-value"] {
+                color: #4facfe !important;
+                font-weight: bold !important;
+                font-size: 1.5rem !important;
+            }
+            
+            /* Additional dark mode metric fixes */
+            div[data-testid="metric-container"] {
+                background: linear-gradient(135deg, rgba(45, 55, 72, 0.9) 0%, rgba(74, 85, 104, 0.9) 100%) !important;
+                border: 1px solid #4a5568 !important;
+                border-radius: 10px !important;
+            }
+            
+            div[data-testid="metric-container"] * {
+                color: #e2e8f0 !important;
+            }
+            
+            div[data-testid="metric-container"] div[data-testid="metric-value"] * {
+                color: #4facfe !important;
+                font-weight: bold !important;
+            }
+            
             .filter-section {
                 background-color: #1a202c;
                 padding: 1.5rem;
@@ -141,6 +195,52 @@ def get_custom_css():
                 color: white;
                 text-align: center;
                 margin: 0.5rem 0;
+            }
+            
+            /* Ensure Streamlit metric cards are visible in light mode */
+            .stMetric {
+                background-color: rgba(248, 249, 250, 0.8) !important;
+                padding: 1rem !important;
+                border-radius: 10px !important;
+                border: 1px solid #e9ecef !important;
+            }
+            
+            .stMetric [data-testid="metric-container"] {
+                background-color: rgba(248, 249, 250, 0.9) !important;
+                border: 1px solid #e9ecef !important;
+                border-radius: 10px !important;
+                padding: 1rem !important;
+            }
+            
+            .stMetric label {
+                color: #495057 !important;
+                font-weight: 600 !important;
+            }
+            
+            .stMetric [data-testid="metric-container"] div[data-testid="metric-label"] {
+                color: #495057 !important;
+            }
+            
+            .stMetric [data-testid="metric-container"] div[data-testid="metric-value"] {
+                color: #1E88E5 !important;
+                font-weight: bold !important;
+                font-size: 1.5rem !important;
+            }
+            
+            /* Light mode metric container overrides */
+            div[data-testid="metric-container"] {
+                background: linear-gradient(135deg, rgba(248, 249, 250, 0.9) 0%, rgba(255, 255, 255, 0.9) 100%) !important;
+                border: 1px solid #e9ecef !important;
+                border-radius: 10px !important;
+            }
+            
+            div[data-testid="metric-container"] * {
+                color: #495057 !important;
+            }
+            
+            div[data-testid="metric-container"] div[data-testid="metric-value"] * {
+                color: #1E88E5 !important;
+                font-weight: bold !important;
             }
             
             .filter-section {
