@@ -52,58 +52,28 @@ def get_custom_css():
                 border: 1px solid #4a5568;
             }
             
-            /* Fix Streamlit metric cards in dark mode */
-            .stMetric {
-                background-color: rgba(45, 55, 72, 0.8) !important;
-                padding: 1rem !important;
-                border-radius: 10px !important;
-                border: 1px solid #4a5568 !important;
-            }
-            
-            .stMetric > div {
-                color: #e2e8f0 !important;
-            }
-            
-            .stMetric [data-testid="metric-container"] {
+            /* Simplified dark mode metrics - ensure values are visible */
+            [data-testid="metric-container"] {
                 background-color: rgba(45, 55, 72, 0.9) !important;
                 border: 1px solid #4a5568 !important;
-                border-radius: 10px !important;
+                border-radius: 8px !important;
                 padding: 1rem !important;
             }
             
-            .stMetric [data-testid="metric-container"] > div {
-                color: #e2e8f0 !important;
-            }
-            
-            .stMetric label {
+            [data-testid="metric-container"] [data-testid="metric-label"] {
                 color: #cbd5e0 !important;
-                font-weight: 600 !important;
+                font-size: 0.875rem !important;
             }
             
-            .stMetric [data-testid="metric-container"] div[data-testid="metric-label"] {
-                color: #cbd5e0 !important;
-            }
-            
-            .stMetric [data-testid="metric-container"] div[data-testid="metric-value"] {
+            [data-testid="metric-container"] [data-testid="metric-value"] {
                 color: #4facfe !important;
-                font-weight: bold !important;
-                font-size: 1.5rem !important;
+                font-size: 2rem !important;
+                font-weight: 700 !important;
             }
             
-            /* Additional dark mode metric fixes */
-            div[data-testid="metric-container"] {
-                background: linear-gradient(135deg, rgba(45, 55, 72, 0.9) 0%, rgba(74, 85, 104, 0.9) 100%) !important;
-                border: 1px solid #4a5568 !important;
-                border-radius: 10px !important;
-            }
-            
-            div[data-testid="metric-container"] * {
-                color: #e2e8f0 !important;
-            }
-            
-            div[data-testid="metric-container"] div[data-testid="metric-value"] * {
-                color: #4facfe !important;
-                font-weight: bold !important;
+            /* Progress bar styling for dark mode */
+            .stProgress .stProgress-bar {
+                background-color: #4facfe !important;
             }
             
             .filter-section {
@@ -197,50 +167,23 @@ def get_custom_css():
                 margin: 0.5rem 0;
             }
             
-            /* Ensure Streamlit metric cards are visible in light mode */
-            .stMetric {
-                background-color: rgba(248, 249, 250, 0.8) !important;
-                padding: 1rem !important;
-                border-radius: 10px !important;
-                border: 1px solid #e9ecef !important;
-            }
-            
-            .stMetric [data-testid="metric-container"] {
+            /* Simplified light mode metrics */
+            [data-testid="metric-container"] {
                 background-color: rgba(248, 249, 250, 0.9) !important;
                 border: 1px solid #e9ecef !important;
-                border-radius: 10px !important;
+                border-radius: 8px !important;
                 padding: 1rem !important;
             }
             
-            .stMetric label {
+            [data-testid="metric-container"] [data-testid="metric-label"] {
                 color: #495057 !important;
-                font-weight: 600 !important;
+                font-size: 0.875rem !important;
             }
             
-            .stMetric [data-testid="metric-container"] div[data-testid="metric-label"] {
-                color: #495057 !important;
-            }
-            
-            .stMetric [data-testid="metric-container"] div[data-testid="metric-value"] {
+            [data-testid="metric-container"] [data-testid="metric-value"] {
                 color: #1E88E5 !important;
-                font-weight: bold !important;
-                font-size: 1.5rem !important;
-            }
-            
-            /* Light mode metric container overrides */
-            div[data-testid="metric-container"] {
-                background: linear-gradient(135deg, rgba(248, 249, 250, 0.9) 0%, rgba(255, 255, 255, 0.9) 100%) !important;
-                border: 1px solid #e9ecef !important;
-                border-radius: 10px !important;
-            }
-            
-            div[data-testid="metric-container"] * {
-                color: #495057 !important;
-            }
-            
-            div[data-testid="metric-container"] div[data-testid="metric-value"] * {
-                color: #1E88E5 !important;
-                font-weight: bold !important;
+                font-size: 2rem !important;
+                font-weight: 700 !important;
             }
             
             .filter-section {
@@ -363,7 +306,40 @@ if 'last_run' not in st.session_state:
 
 # Run screening button
 if st.button("🚀 Run Stock Screening", type="primary"):
-    with st.spinner("🔍 Analyzing stocks... This may take a few minutes..."):
+    # Create a styled container for progress indicators based on theme
+    progress_container = st.container()
+    with progress_container:
+        if st.session_state.dark_mode:
+            st.markdown("""
+            <div style="
+                background: rgba(45, 55, 72, 0.9); 
+                padding: 1.5rem; 
+                border-radius: 10px; 
+                border: 1px solid #4a5568; 
+                margin: 1rem 0;
+                text-align: center;
+            ">
+                <p style="color: #e2e8f0; font-size: 1.1rem; margin: 0;">
+                    🔍 Analyzing stocks... This may take a few minutes...
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            st.markdown("""
+            <div style="
+                background: rgba(248, 249, 250, 0.9); 
+                padding: 1.5rem; 
+                border-radius: 10px; 
+                border: 1px solid #e9ecef; 
+                margin: 1rem 0;
+                text-align: center;
+            ">
+                <p style="color: #495057; font-size: 1.1rem; margin: 0;">
+                    🔍 Analyzing stocks... This may take a few minutes...
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+        
         progress_bar = st.progress(0)
         status_text = st.empty()
         
