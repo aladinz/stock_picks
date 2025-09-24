@@ -16,51 +16,195 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for modern styling
-st.markdown("""
-<style>
-    .main-header {
-        font-size: 3rem;
-        font-weight: bold;
-        color: #1E88E5;
-        text-align: center;
-        margin-bottom: 2rem;
-    }
-    .metric-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 1rem;
-        border-radius: 10px;
-        color: white;
-        text-align: center;
-        margin: 0.5rem 0;
-    }
-    .filter-section {
-        background-color: #f8f9fa;
-        padding: 1.5rem;
-        border-radius: 10px;
-        margin: 1rem 0;
-    }
-    .stButton > button {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: none;
-        border-radius: 25px;
-        padding: 0.5rem 2rem;
-        font-weight: bold;
-        transition: all 0.3s ease;
-    }
-    .stButton > button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    }
-</style>
-""", unsafe_allow_html=True)
+# Initialize session state for dark mode
+if 'dark_mode' not in st.session_state:
+    st.session_state.dark_mode = False
 
-# Header
-st.markdown('<h1 class="main-header">📈 Stock Screener Dashboard</h1>', unsafe_allow_html=True)
+# Function to toggle dark mode
+def toggle_dark_mode():
+    st.session_state.dark_mode = not st.session_state.dark_mode
+
+# Dynamic CSS based on dark mode
+def get_custom_css():
+    if st.session_state.dark_mode:
+        return """
+        <style>
+            /* Dark Mode Styles */
+            .stApp {
+                background-color: #0e1117;
+                color: #fafafa;
+            }
+            
+            .main-header {
+                font-size: 3rem;
+                font-weight: bold;
+                background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                text-align: center;
+                margin-bottom: 2rem;
+            }
+            
+            .metric-card {
+                background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+                padding: 1rem;
+                border-radius: 10px;
+                color: #e2e8f0;
+                text-align: center;
+                margin: 0.5rem 0;
+                border: 1px solid #4a5568;
+            }
+            
+            .filter-section {
+                background-color: #1a202c;
+                padding: 1.5rem;
+                border-radius: 10px;
+                margin: 1rem 0;
+                border: 1px solid #2d3748;
+            }
+            
+            .stButton > button {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border: none;
+                border-radius: 25px;
+                padding: 0.5rem 2rem;
+                font-weight: bold;
+                transition: all 0.3s ease;
+            }
+            
+            .stButton > button:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            }
+            
+            .sidebar .sidebar-content {
+                background-color: #1a202c;
+            }
+            
+            /* Dark mode specific elements */
+            .stSelectbox > div > div {
+                background-color: #2d3748;
+                color: #e2e8f0;
+            }
+            
+            .stSlider > div > div > div {
+                background-color: #4a5568;
+            }
+            
+            .stDataFrame {
+                background-color: #1a202c;
+            }
+            
+            .dark-mode-badge {
+                background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+                color: #e2e8f0;
+                padding: 0.3rem 0.8rem;
+                border-radius: 20px;
+                font-size: 0.8rem;
+                border: 1px solid #4a5568;
+            }
+            
+            .feature-card-dark {
+                background-color: #1a202c;
+                padding: 1.5rem;
+                border-radius: 10px;
+                border: 1px solid #2d3748;
+                margin: 1rem 0;
+            }
+        </style>
+        """
+    else:
+        return """
+        <style>
+            /* Light Mode Styles */
+            .stApp {
+                background-color: #ffffff;
+                color: #262730;
+            }
+            
+            .main-header {
+                font-size: 3rem;
+                font-weight: bold;
+                color: #1E88E5;
+                text-align: center;
+                margin-bottom: 2rem;
+            }
+            
+            .metric-card {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                padding: 1rem;
+                border-radius: 10px;
+                color: white;
+                text-align: center;
+                margin: 0.5rem 0;
+            }
+            
+            .filter-section {
+                background-color: #f8f9fa;
+                padding: 1.5rem;
+                border-radius: 10px;
+                margin: 1rem 0;
+            }
+            
+            .stButton > button {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border: none;
+                border-radius: 25px;
+                padding: 0.5rem 2rem;
+                font-weight: bold;
+                transition: all 0.3s ease;
+            }
+            
+            .stButton > button:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            }
+            
+            .light-mode-badge {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 0.3rem 0.8rem;
+                border-radius: 20px;
+                font-size: 0.8rem;
+            }
+            
+            .feature-card-light {
+                background-color: #f8f9fa;
+                padding: 1.5rem;
+                border-radius: 10px;
+                border: 1px solid #e9ecef;
+                margin: 1rem 0;
+            }
+        </style>
+        """
+
+# Apply custom CSS
+st.markdown(get_custom_css(), unsafe_allow_html=True)
+
+# Header with dark mode indicator
+header_col1, header_col2 = st.columns([4, 1])
+with header_col1:
+    st.markdown('<h1 class="main-header">📈 Stock Screener Dashboard</h1>', unsafe_allow_html=True)
+with header_col2:
+    mode_badge = "🌙 Dark" if st.session_state.dark_mode else "☀️ Light"
+    badge_class = "dark-mode-badge" if st.session_state.dark_mode else "light-mode-badge"
+    st.markdown(f'<div class="{badge_class}">{mode_badge}</div>', unsafe_allow_html=True)
 
 # Sidebar for filters
 with st.sidebar:
+    # Dark mode toggle at the top of sidebar
+    st.markdown("### 🎨 Appearance")
+    dark_mode_toggle = st.toggle("🌙 Dark Mode", value=st.session_state.dark_mode, key="dark_toggle")
+    
+    # Update session state if toggle changes
+    if dark_mode_toggle != st.session_state.dark_mode:
+        st.session_state.dark_mode = dark_mode_toggle
+        st.rerun()
+    
+    st.markdown("---")
     st.header("🔧 Screening Criteria")
     
     st.subheader("📊 Fundamental Filters")
@@ -162,21 +306,57 @@ if st.session_state.screening_results is not None:
             if len(results_df) > 0 and 'Sector' in results_df.columns:
                 # Sector distribution
                 sector_counts = results_df['Sector'].value_counts()
+                
+                # Dark mode color scheme
+                if st.session_state.dark_mode:
+                    colors = px.colors.qualitative.Dark24
+                    paper_bgcolor = 'rgba(0,0,0,0)'
+                    plot_bgcolor = 'rgba(0,0,0,0)'
+                    font_color = '#e2e8f0'
+                else:
+                    colors = px.colors.qualitative.Set3
+                    paper_bgcolor = 'rgba(0,0,0,0)'
+                    plot_bgcolor = 'rgba(0,0,0,0)'
+                    font_color = '#262730'
+                
                 fig_sector = px.pie(values=sector_counts.values, 
                                   names=sector_counts.index,
                                   title="📊 Sector Distribution",
-                                  color_discrete_sequence=px.colors.qualitative.Set3)
+                                  color_discrete_sequence=colors)
                 fig_sector.update_traces(textposition='inside', textinfo='percent+label')
+                fig_sector.update_layout(
+                    paper_bgcolor=paper_bgcolor,
+                    plot_bgcolor=plot_bgcolor,
+                    font_color=font_color,
+                    title_font_color=font_color
+                )
                 st.plotly_chart(fig_sector, use_container_width=True)
         
         with chart_col2:
             if len(results_df) > 0 and 'RSI' in results_df.columns:
                 # RSI distribution
+                if st.session_state.dark_mode:
+                    bar_color = '#4facfe'
+                    paper_bgcolor = 'rgba(0,0,0,0)'
+                    plot_bgcolor = 'rgba(0,0,0,0)'
+                    font_color = '#e2e8f0'
+                else:
+                    bar_color = '#667eea'
+                    paper_bgcolor = 'rgba(0,0,0,0)'
+                    plot_bgcolor = 'rgba(0,0,0,0)'
+                    font_color = '#262730'
+                
                 fig_rsi = px.histogram(results_df, x='RSI', 
                                      title="📈 RSI Distribution",
                                      nbins=10,
-                                     color_discrete_sequence=['#667eea'])
-                fig_rsi.update_layout(showlegend=False)
+                                     color_discrete_sequence=[bar_color])
+                fig_rsi.update_layout(
+                    showlegend=False,
+                    paper_bgcolor=paper_bgcolor,
+                    plot_bgcolor=plot_bgcolor,
+                    font_color=font_color,
+                    title_font_color=font_color
+                )
                 st.plotly_chart(fig_rsi, use_container_width=True)
         
         # Interactive data table
@@ -235,14 +415,34 @@ if st.session_state.screening_results is not None:
                         hist = ticker.history(period="3mo")
                         
                         if not hist.empty:
+                            # Dark mode styling for candlestick chart
+                            if st.session_state.dark_mode:
+                                paper_bgcolor = 'rgba(0,0,0,0)'
+                                plot_bgcolor = 'rgba(0,0,0,0)'
+                                font_color = '#e2e8f0'
+                                grid_color = '#4a5568'
+                            else:
+                                paper_bgcolor = 'rgba(0,0,0,0)'
+                                plot_bgcolor = 'rgba(0,0,0,0)'
+                                font_color = '#262730'
+                                grid_color = '#e9ecef'
+                            
                             fig = go.Figure(data=go.Candlestick(x=hist.index,
                                                               open=hist['Open'],
                                                               high=hist['High'],
                                                               low=hist['Low'],
                                                               close=hist['Close']))
-                            fig.update_layout(title=f"{selected_stock} - 3 Month Price Chart",
-                                            xaxis_title="Date",
-                                            yaxis_title="Price ($)")
+                            fig.update_layout(
+                                title=f"{selected_stock} - 3 Month Price Chart",
+                                xaxis_title="Date",
+                                yaxis_title="Price ($)",
+                                paper_bgcolor=paper_bgcolor,
+                                plot_bgcolor=plot_bgcolor,
+                                font_color=font_color,
+                                title_font_color=font_color,
+                                xaxis=dict(gridcolor=grid_color),
+                                yaxis=dict(gridcolor=grid_color)
+                            )
                             st.plotly_chart(fig, use_container_width=True)
                     except Exception as e:
                         st.error(f"Could not load chart for {selected_stock}: {str(e)}")
@@ -270,32 +470,40 @@ else:
     st.subheader("🌟 Features:")
     feature_col1, feature_col2, feature_col3 = st.columns(3)
     
+    card_class = "feature-card-dark" if st.session_state.dark_mode else "feature-card-light"
+    
     with feature_col1:
-        st.markdown("""
-        **📊 Advanced Filtering**
-        - Fundamental analysis
-        - Technical indicators
-        - Volume & momentum
-        - Custom criteria
-        """)
+        st.markdown(f"""
+        <div class="{card_class}">
+        <strong>📊 Advanced Filtering</strong><br>
+        • Fundamental analysis<br>
+        • Technical indicators<br>
+        • Volume & momentum<br>
+        • Custom criteria
+        </div>
+        """, unsafe_allow_html=True)
     
     with feature_col2:
-        st.markdown("""
-        **📈 Interactive Charts**
-        - Sector distribution
-        - RSI analysis
-        - Price charts
-        - Real-time data
-        """)
+        st.markdown(f"""
+        <div class="{card_class}">
+        <strong>📈 Interactive Charts</strong><br>
+        • Sector distribution<br>
+        • RSI analysis<br>
+        • Price charts<br>
+        • Real-time data
+        </div>
+        """, unsafe_allow_html=True)
     
     with feature_col3:
-        st.markdown("""
-        **💾 Export & Analysis**
-        - Download results
-        - Detailed stock view
-        - Historical charts
-        - Progress tracking
-        """)
+        st.markdown(f"""
+        <div class="{card_class}">
+        <strong>💾 Export & Analysis</strong><br>
+        • Download results<br>
+        • Detailed stock view<br>
+        • Historical charts<br>
+        • Progress tracking
+        </div>
+        """, unsafe_allow_html=True)
 
 # Footer
 st.markdown("---")
