@@ -642,20 +642,126 @@ if st.session_state.screening_results is not None:
             mime="text/csv"
         )
         
-        # Individual stock details
+        # Enhanced Individual stock details
         if len(results_df) > 0:
-            st.subheader("🔍 Stock Details")
+            st.subheader("🔍 Comprehensive Stock Analysis")
             selected_stock = st.selectbox("Select a stock for detailed analysis:", 
                                         results_df['Ticker'].tolist())
             
             if selected_stock:
-                with st.spinner(f"Loading details for {selected_stock}..."):
+                with st.spinner(f"Loading comprehensive details for {selected_stock}..."):
                     try:
                         ticker = yf.Ticker(selected_stock)
-                        hist = ticker.history(period="3mo")
+                        info = ticker.info
+                        hist_1y = ticker.history(period="1y")
+                        hist_3mo = ticker.history(period="3mo")
                         
-                        if not hist.empty:
-                            # Dark mode styling for candlestick chart
+                        # Get current stock info from results
+                        stock_row = results_df[results_df['Ticker'] == selected_stock].iloc[0]
+                        
+                        if not hist_3mo.empty:
+                            # === STOCK OVERVIEW SECTION ===
+                            st.markdown(f"### 📊 {selected_stock} - {info.get('longName', 'N/A')}")
+                            
+                            # Key metrics in columns
+                            col1, col2, col3, col4 = st.columns(4)
+                            with col1:
+                                st.metric("💰 Current Price", f"${info.get('currentPrice', 0):.2f}",
+                                        f"{info.get('regularMarketChangePercent', 0)*100:.1f}%" if info.get('regularMarketChangePercent') else None)
+                            with col2:
+                                st.metric("📈 Market Cap", f"${info.get('marketCap', 0)/1e9:.1f}B" if info.get('marketCap') else "N/A")
+                            with col3:
+                                st.metric("⚡ P/E Ratio", f"{info.get('forwardPE', 0):.1f}" if info.get('forwardPE') else "N/A")
+                            with col4:
+                                st.metric("📊 Beta", f"{info.get('beta', 0):.2f}" if info.get('beta') else "N/A")
+
+                            # === FINANCIAL HIGHLIGHTS ===
+                            st.markdown("#### 💼 Financial Highlights")
+                            fin_col1, fin_col2, fin_col3 = st.columns(3)
+                            
+                            with fin_col1:
+                                st.markdown(f"""
+                                **📈 Valuation Metrics**
+                                - **EPS (TTM):** ${info.get('trailingEps', 0):.2f}
+                                - **Revenue (TTM):** ${info.get('totalRevenue', 0)/1e9:.1f}B
+                                - **Profit Margin:** {info.get('profitMargins', 0)*100:.1f}%
+                                - **ROE:** {info.get('returnOnEquity', 0)*100:.1f}%
+                                """)
+                            
+                            with fin_col2:
+                                st.markdown(f"""
+                                **💰 Price Ranges**
+                                - **52W High:** ${info.get('fiftyTwoWeekHigh', 0):.2f}
+                                - **52W Low:** ${info.get('fiftyTwoWeekLow', 0):.2f}
+                                - **50D Avg:** ${info.get('fiftyDayAverage', 0):.2f}
+                                - **200D Avg:** ${info.get('twoHundredDayAverage', 0):.2f}
+                                """)
+                                
+                            with fin_col3:
+                                st.markdown(f"""
+                                **📊 Trading Info**
+                                - **Volume:** {info.get('volume', 0):,}
+                                - **Avg Volume:** {info.get('averageVolume', 0):,}
+                                - **Dividend Yield:** {info.get('dividendYield', 0)*100:.2f}%
+                                - **Payout Ratio:** {info.get('payoutRatio', 0)*100:.1f}%
+                                """)
+
+                            # === TECHNICAL ANALYSIS ===
+                            st.markdown("#### 📈 Technical Analysis")
+                            
+                            # Calculate technical indicators
+                            current_price = hist_3mo['Close'].iloc[-1]
+                            sma_20 = hist_3mo['Close'].rolling(20).mean().iloc[-1]
+                            sma_50 = hist_3mo['Close'].rolling(50).mean().iloc[-1]
+                            
+                            # RSI Calculation
+                            delta = hist_3mo['Close'].diff()
+                            up = delta.clip(lower=0)
+                            down = -1 * delta.clip(upper=0)
+                            ma_up = up.ewm(com=13).mean()
+                            ma_down = down.ewm(com=13).mean()
+                            current_rsi = 100 - (100 / (1 + ma_up.iloc[-1] / ma_down.iloc[-1]))
+                            
+                            # Bollinger Bands
+                            bb_period = 20
+                            bb_std = hist_3mo['Close'].rolling(bb_period).std().iloc[-1]
+                            bb_upper = sma_20 + (bb_std * 2)
+                            bb_lower = sma_20 - (bb_std * 2)
+                            
+                            tech_col1, tech_col2 = st.columns(2)
+                            
+                            with tech_col1:
+                                # Technical indicators
+                                rsi_color = "🟢" if 30 < current_rsi < 70 else ("🔴" if current_rsi > 70 else "🟡")
+                                ma_signal = "🟢 Bullish" if current_price > sma_20 > sma_50 else "🔴 Bearish"
+                                bb_position = "Upper" if current_price > bb_upper else ("Lower" if current_price < bb_lower else "Middle")
+                                
+                                st.markdown(f"""
+                                **🎯 Technical Indicators**
+                                - **RSI (14):** {current_rsi:.1f} {rsi_color}
+                                - **MA Signal:** {ma_signal}
+                                - **BB Position:** {bb_position}
+                                - **Volatility:** {(bb_std/sma_20)*100:.1f}%
+                                """)
+                            
+                            with tech_col2:
+                                # Price targets and support/resistance
+                                high_3mo = hist_3mo['High'].max()
+                                low_3mo = hist_3mo['Low'].min()
+                                price_range = high_3mo - low_3mo
+                                
+                                st.markdown(f"""
+                                **🎯 Key Levels (3M)**
+                                - **Resistance:** ${high_3mo:.2f}
+                                - **Support:** ${low_3mo:.2f}
+                                - **Range:** {(price_range/low_3mo)*100:.1f}%
+                                - **Current Position:** {((current_price-low_3mo)/price_range)*100:.0f}%
+                                """)
+
+                            # === ENHANCED CHARTS SECTION ===
+                            st.markdown("#### 📊 Advanced Price Analysis")
+                            
+                            # Chart styling
                             if st.session_state.dark_mode:
                                 paper_bgcolor = 'rgba(0,0,0,0)'
                                 plot_bgcolor = 'rgba(0,0,0,0)'
@@ -667,13 +773,62 @@ if st.session_state.screening_results is not None:
                                 font_color = '#262730'
                                 grid_color = '#e9ecef'
                             
-                            fig = go.Figure(data=go.Candlestick(x=hist.index,
-                                                              open=hist['Open'],
-                                                              high=hist['High'],
-                                                              low=hist['Low'],
-                                                              close=hist['Close']))
+                            # Main candlestick chart with technical overlays
+                            fig = go.Figure()
+                            
+                            # Candlestick data
+                            fig.add_trace(go.Candlestick(
+                                x=hist_3mo.index,
+                                open=hist_3mo['Open'],
+                                high=hist_3mo['High'],
+                                low=hist_3mo['Low'],
+                                close=hist_3mo['Close'],
+                                name=selected_stock
+                            ))
+                            
+                            # Add moving averages
+                            fig.add_trace(go.Scatter(
+                                x=hist_3mo.index,
+                                y=hist_3mo['Close'].rolling(20).mean(),
+                                mode='lines',
+                                name='SMA 20',
+                                line=dict(color='orange', width=2)
+                            ))
+                            
+                            fig.add_trace(go.Scatter(
+                                x=hist_3mo.index,
+                                y=hist_3mo['Close'].rolling(50).mean(),
+                                mode='lines',
+                                name='SMA 50',
+                                line=dict(color='blue', width=2)
+                            ))
+                            
+                            # Add Bollinger Bands
+                            bb_upper_series = hist_3mo['Close'].rolling(20).mean() + (hist_3mo['Close'].rolling(20).std() * 2)
+                            bb_lower_series = hist_3mo['Close'].rolling(20).mean() - (hist_3mo['Close'].rolling(20).std() * 2)
+                            
+                            fig.add_trace(go.Scatter(
+                                x=hist_3mo.index,
+                                y=bb_upper_series,
+                                mode='lines',
+                                name='BB Upper',
+                                line=dict(color='gray', width=1, dash='dash'),
+                                showlegend=False
+                            ))
+                            
+                            fig.add_trace(go.Scatter(
+                                x=hist_3mo.index,
+                                y=bb_lower_series,
+                                mode='lines',
+                                name='BB Lower',
+                                line=dict(color='gray', width=1, dash='dash'),
+                                fill='tonexty',
+                                fillcolor='rgba(128,128,128,0.1)',
+                                showlegend=False
+                            ))
+                            
                             fig.update_layout(
-                                title=f"{selected_stock} - 3 Month Price Chart",
+                                title=f"{selected_stock} - Advanced Technical Analysis (3 Months)",
                                 xaxis_title="Date",
                                 yaxis_title="Price ($)",
                                 paper_bgcolor=paper_bgcolor,
@@ -681,11 +836,140 @@ if st.session_state.screening_results is not None:
                                 font_color=font_color,
                                 title_font_color=font_color,
                                 xaxis=dict(gridcolor=grid_color),
-                                yaxis=dict(gridcolor=grid_color)
+                                yaxis=dict(gridcolor=grid_color),
+                                height=500,
+                                showlegend=True,
+                                legend=dict(
+                                    yanchor="top",
+                                    y=0.99,
+                                    xanchor="left",
+                                    x=0.01
+                                )
                             )
+                            
                             st.plotly_chart(fig, use_container_width=True)
+                            
+                            # === VOLUME AND RSI CHARTS ===
+                            chart_col1, chart_col2 = st.columns(2)
+                            
+                            with chart_col1:
+                                # Volume chart
+                                fig_vol = go.Figure()
+                                fig_vol.add_trace(go.Bar(
+                                    x=hist_3mo.index,
+                                    y=hist_3mo['Volume'],
+                                    name='Volume',
+                                    marker_color='rgba(79, 172, 254, 0.7)' if st.session_state.dark_mode else 'rgba(102, 126, 234, 0.7)'
+                                ))
+                                
+                                fig_vol.update_layout(
+                                    title="📊 Trading Volume",
+                                    xaxis_title="Date",
+                                    yaxis_title="Volume",
+                                    paper_bgcolor=paper_bgcolor,
+                                    plot_bgcolor=plot_bgcolor,
+                                    font_color=font_color,
+                                    title_font_color=font_color,
+                                    xaxis=dict(gridcolor=grid_color),
+                                    yaxis=dict(gridcolor=grid_color),
+                                    height=300,
+                                    showlegend=False
+                                )
+                                
+                                st.plotly_chart(fig_vol, use_container_width=True)
+                            
+                            with chart_col2:
+                                # RSI chart
+                                delta = hist_3mo['Close'].diff()
+                                up = delta.clip(lower=0)
+                                down = -1 * delta.clip(upper=0)
+                                ma_up = up.ewm(com=13).mean()
+                                ma_down = down.ewm(com=13).mean()
+                                rsi_series = 100 - (100 / (1 + ma_up / ma_down))
+                                
+                                fig_rsi = go.Figure()
+                                fig_rsi.add_trace(go.Scatter(
+                                    x=hist_3mo.index,
+                                    y=rsi_series,
+                                    mode='lines',
+                                    name='RSI',
+                                    line=dict(color='purple', width=2)
+                                ))
+                                
+                                # Add RSI levels
+                                fig_rsi.add_hline(y=70, line_dash="dash", line_color="red", annotation_text="Overbought")
+                                fig_rsi.add_hline(y=30, line_dash="dash", line_color="green", annotation_text="Oversold")
+                                fig_rsi.add_hline(y=50, line_dash="dot", line_color="gray", annotation_text="Neutral")
+                                
+                                fig_rsi.update_layout(
+                                    title="📈 RSI Indicator (14-day)",
+                                    xaxis_title="Date",
+                                    yaxis_title="RSI",
+                                    paper_bgcolor=paper_bgcolor,
+                                    plot_bgcolor=plot_bgcolor,
+                                    font_color=font_color,
+                                    title_font_color=font_color,
+                                    xaxis=dict(gridcolor=grid_color),
+                                    yaxis=dict(gridcolor=grid_color, range=[0, 100]),
+                                    height=300,
+                                    showlegend=False
+                                )
+                                
+                                st.plotly_chart(fig_rsi, use_container_width=True)
+                            
+                            # === COMPANY INFORMATION ===
+                            if info.get('longBusinessSummary'):
+                                st.markdown("#### 🏢 Company Overview")
+                                with st.expander("📝 Business Summary", expanded=False):
+                                    st.write(info.get('longBusinessSummary', 'No business summary available.'))
+                            
+                            # === ANALYST RECOMMENDATIONS ===
+                            st.markdown("#### 🎯 Investment Summary")
+                            summary_col1, summary_col2 = st.columns(2)
+                            
+                            with summary_col1:
+                                # Risk Assessment
+                                risk_level = "Low" if info.get('beta', 1) < 1 else ("High" if info.get('beta', 1) > 1.5 else "Medium")
+                                risk_color = "🟢" if risk_level == "Low" else ("🔴" if risk_level == "High" else "🟡")
+                                
+                                st.markdown(f"""
+                                **⚠️ Risk Assessment**
+                                - **Risk Level:** {risk_level} {risk_color}
+                                - **Beta:** {info.get('beta', 'N/A')}
+                                - **Debt/Equity:** {info.get('debtToEquity', 'N/A')}
+                                """)
+                            
+                            with summary_col2:
+                                # Analyst recommendation
+                                recommendation = info.get('recommendationKey', 'N/A').replace('_', ' ').title()
+                                target_price = info.get('targetMeanPrice', 0)
+                                upside = ((target_price - current_price) / current_price * 100) if target_price and current_price else 0
+                                
+                                st.markdown(f"""
+                                **🎯 Analyst View**
+                                - **Recommendation:** {recommendation}
+                                - **Target Price:** ${target_price:.2f}
+                                - **Potential Upside:** {upside:.1f}%
+                                """)
+                        
+                        else:
+                            st.warning(f"No historical data available for {selected_stock}")
+                            
                     except Exception as e:
-                        st.error(f"Could not load chart for {selected_stock}: {str(e)}")
+                        st.error(f"Could not load comprehensive details for {selected_stock}: {str(e)}")
+                        # Fallback to basic chart
+                        try:
+                            ticker = yf.Ticker(selected_stock)
+                            hist = ticker.history(period="3mo")
+                            if not hist.empty:
+                                fig = go.Figure(data=go.Candlestick(x=hist.index,
+                                                                  open=hist['Open'],
+                                                                  high=hist['High'],
+                                                                  low=hist['Low'],
+                                                                  close=hist['Close']))
+                                st.plotly_chart(fig, use_container_width=True)
+                        except:
+                            st.error("Unable to load any data for this stock.")
     
     else:
         st.warning("🔍 No stocks found matching the current criteria. Try adjusting the filters to see results.")
