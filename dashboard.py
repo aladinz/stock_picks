@@ -52,8 +52,10 @@ def get_custom_css():
                 border: 1px solid #4a5568;
             }
             
-            /* Enhanced dark mode metrics with stronger selectors */
-            div[data-testid="metric-container"] {
+            /* Ultra-strong dark mode metric selectors - covers all possible cases */
+            div[data-testid="metric-container"],
+            .stMetric > div,
+            .metric-container {
                 background-color: rgba(45, 55, 72, 0.95) !important;
                 border: 2px solid #4facfe !important;
                 border-radius: 12px !important;
@@ -61,27 +63,72 @@ def get_custom_css():
                 box-shadow: 0 4px 12px rgba(79, 172, 254, 0.15) !important;
             }
             
-            div[data-testid="metric-container"] div[data-testid="metric-label"] {
+            /* All possible metric label selectors */
+            div[data-testid="metric-container"] div[data-testid="metric-label"],
+            div[data-testid="metric-container"] .metric-label,
+            .stMetric .metric-label,
+            .stMetric label,
+            div[data-testid="metric-label"] {
                 color: #e2e8f0 !important;
                 font-size: 0.9rem !important;
                 font-weight: 500 !important;
                 opacity: 0.9 !important;
             }
             
-            div[data-testid="metric-container"] div[data-testid="metric-value"] {
+            /* Comprehensive metric value selectors */
+            div[data-testid="metric-container"] div[data-testid="metric-value"],
+            div[data-testid="metric-container"] .metric-value,
+            div[data-testid="metric-value"],
+            .stMetric div[data-testid="metric-value"],
+            .stMetric .metric-value,
+            .metric div[data-testid="metric-value"],
+            [data-testid="metric-value"],
+            .js-plot-link-container + div div[data-testid="metric-value"],
+            div[data-testid="metric-container"] > div > div:last-child,
+            .stMetric > div > div:last-child {
                 color: #4facfe !important;
                 font-size: 2.2rem !important;
                 font-weight: 800 !important;
                 text-shadow: 0 0 10px rgba(79, 172, 254, 0.3) !important;
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
             }
             
-            /* Additional fallback selectors for metric values */
-            .metric div[data-testid="metric-value"],
-            .stMetric div[data-testid="metric-value"],
-            [data-testid="metric-value"] {
+            /* Force all text inside metrics to be visible */
+            div[data-testid="metric-container"] * {
                 color: #4facfe !important;
-                font-size: 2.2rem !important;
-                font-weight: 800 !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+            }
+            
+            /* Specific override for metric labels */
+            div[data-testid="metric-container"] div[data-testid="metric-label"] * {
+                color: #e2e8f0 !important;
+            }
+            
+            /* Debug and force visibility animation */
+            @keyframes forceVisible {
+                0% { opacity: 0; }
+                100% { opacity: 1; }
+            }
+            
+            div[data-testid="metric-value"],
+            [data-testid="metric-value"] {
+                animation: forceVisible 0.5s ease-in-out !important;
+                color: #4facfe !important;
+            }
+            
+            /* Nuclear option - force all metric text to be visible */
+            .stMetric, .stMetric *, div[data-testid="metric-container"], div[data-testid="metric-container"] * {
+                color: #4facfe !important;
+                text-decoration: none !important;
+                background: transparent !important;
+            }
+            
+            /* Re-override labels to correct color */
+            div[data-testid="metric-label"], div[data-testid="metric-label"] * {
+                color: #e2e8f0 !important;
             }
             
             /* Progress bar styling for dark mode */
@@ -180,8 +227,10 @@ def get_custom_css():
                 margin: 0.5rem 0;
             }
             
-            /* Enhanced light mode metrics */
-            div[data-testid="metric-container"] {
+            /* Comprehensive light mode metrics */
+            div[data-testid="metric-container"],
+            .stMetric > div,
+            .metric-container {
                 background-color: rgba(248, 249, 250, 0.95) !important;
                 border: 2px solid #1E88E5 !important;
                 border-radius: 12px !important;
@@ -189,27 +238,36 @@ def get_custom_css():
                 box-shadow: 0 4px 12px rgba(30, 136, 229, 0.15) !important;
             }
             
-            div[data-testid="metric-container"] div[data-testid="metric-label"] {
+            /* All possible light mode label selectors */
+            div[data-testid="metric-container"] div[data-testid="metric-label"],
+            div[data-testid="metric-container"] .metric-label,
+            .stMetric .metric-label,
+            .stMetric label,
+            div[data-testid="metric-label"] {
                 color: #495057 !important;
                 font-size: 0.9rem !important;
                 font-weight: 500 !important;
                 opacity: 0.8 !important;
             }
             
-            div[data-testid="metric-container"] div[data-testid="metric-value"] {
+            /* Comprehensive light mode value selectors */
+            div[data-testid="metric-container"] div[data-testid="metric-value"],
+            div[data-testid="metric-container"] .metric-value,
+            div[data-testid="metric-value"],
+            .stMetric div[data-testid="metric-value"],
+            .stMetric .metric-value,
+            .metric div[data-testid="metric-value"],
+            [data-testid="metric-value"],
+            .js-plot-link-container + div div[data-testid="metric-value"],
+            div[data-testid="metric-container"] > div > div:last-child,
+            .stMetric > div > div:last-child {
                 color: #1E88E5 !important;
                 font-size: 2.2rem !important;
                 font-weight: 800 !important;
                 text-shadow: 0 0 10px rgba(30, 136, 229, 0.2) !important;
-            }
-            
-            /* Additional fallback selectors for light mode */
-            .metric div[data-testid="metric-value"],
-            .stMetric div[data-testid="metric-value"],
-            [data-testid="metric-value"] {
-                color: #1E88E5 !important;
-                font-size: 2.2rem !important;
-                font-weight: 800 !important;
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
             }
             
             .filter-section {
@@ -260,6 +318,34 @@ def get_custom_css():
 
 # Apply custom CSS
 st.markdown(get_custom_css(), unsafe_allow_html=True)
+
+# Force metric visibility with JavaScript in dark mode
+if st.session_state.dark_mode:
+    st.markdown("""
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(function() {
+            // Force metric values to be visible
+            const metricValues = document.querySelectorAll('[data-testid="metric-value"]');
+            metricValues.forEach(function(element) {
+                element.style.color = '#4facfe !important';
+                element.style.visibility = 'visible !important';
+                element.style.opacity = '1 !important';
+                element.style.display = 'block !important';
+                element.style.fontSize = '2.2rem !important';
+                element.style.fontWeight = '800 !important';
+            });
+            
+            // Set metric labels
+            const metricLabels = document.querySelectorAll('[data-testid="metric-label"]');
+            metricLabels.forEach(function(element) {
+                element.style.color = '#e2e8f0 !important';
+                element.style.opacity = '0.9 !important';
+            });
+        }, 500);
+    });
+    </script>
+    """, unsafe_allow_html=True)
 
 # Header with dark mode indicator
 header_col1, header_col2 = st.columns([4, 1])
