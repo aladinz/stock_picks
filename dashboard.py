@@ -52,23 +52,36 @@ def get_custom_css():
                 border: 1px solid #4a5568;
             }
             
-            /* Simplified dark mode metrics - ensure values are visible */
-            [data-testid="metric-container"] {
-                background-color: rgba(45, 55, 72, 0.9) !important;
-                border: 1px solid #4a5568 !important;
-                border-radius: 8px !important;
-                padding: 1rem !important;
+            /* Enhanced dark mode metrics with stronger selectors */
+            div[data-testid="metric-container"] {
+                background-color: rgba(45, 55, 72, 0.95) !important;
+                border: 2px solid #4facfe !important;
+                border-radius: 12px !important;
+                padding: 1.2rem !important;
+                box-shadow: 0 4px 12px rgba(79, 172, 254, 0.15) !important;
             }
             
-            [data-testid="metric-container"] [data-testid="metric-label"] {
-                color: #cbd5e0 !important;
-                font-size: 0.875rem !important;
+            div[data-testid="metric-container"] div[data-testid="metric-label"] {
+                color: #e2e8f0 !important;
+                font-size: 0.9rem !important;
+                font-weight: 500 !important;
+                opacity: 0.9 !important;
             }
             
-            [data-testid="metric-container"] [data-testid="metric-value"] {
+            div[data-testid="metric-container"] div[data-testid="metric-value"] {
                 color: #4facfe !important;
-                font-size: 2rem !important;
-                font-weight: 700 !important;
+                font-size: 2.2rem !important;
+                font-weight: 800 !important;
+                text-shadow: 0 0 10px rgba(79, 172, 254, 0.3) !important;
+            }
+            
+            /* Additional fallback selectors for metric values */
+            .metric div[data-testid="metric-value"],
+            .stMetric div[data-testid="metric-value"],
+            [data-testid="metric-value"] {
+                color: #4facfe !important;
+                font-size: 2.2rem !important;
+                font-weight: 800 !important;
             }
             
             /* Progress bar styling for dark mode */
@@ -167,23 +180,36 @@ def get_custom_css():
                 margin: 0.5rem 0;
             }
             
-            /* Simplified light mode metrics */
-            [data-testid="metric-container"] {
-                background-color: rgba(248, 249, 250, 0.9) !important;
-                border: 1px solid #e9ecef !important;
-                border-radius: 8px !important;
-                padding: 1rem !important;
+            /* Enhanced light mode metrics */
+            div[data-testid="metric-container"] {
+                background-color: rgba(248, 249, 250, 0.95) !important;
+                border: 2px solid #1E88E5 !important;
+                border-radius: 12px !important;
+                padding: 1.2rem !important;
+                box-shadow: 0 4px 12px rgba(30, 136, 229, 0.15) !important;
             }
             
-            [data-testid="metric-container"] [data-testid="metric-label"] {
+            div[data-testid="metric-container"] div[data-testid="metric-label"] {
                 color: #495057 !important;
-                font-size: 0.875rem !important;
+                font-size: 0.9rem !important;
+                font-weight: 500 !important;
+                opacity: 0.8 !important;
             }
             
-            [data-testid="metric-container"] [data-testid="metric-value"] {
+            div[data-testid="metric-container"] div[data-testid="metric-value"] {
                 color: #1E88E5 !important;
-                font-size: 2rem !important;
-                font-weight: 700 !important;
+                font-size: 2.2rem !important;
+                font-weight: 800 !important;
+                text-shadow: 0 0 10px rgba(30, 136, 229, 0.2) !important;
+            }
+            
+            /* Additional fallback selectors for light mode */
+            .metric div[data-testid="metric-value"],
+            .stMetric div[data-testid="metric-value"],
+            [data-testid="metric-value"] {
+                color: #1E88E5 !important;
+                font-size: 2.2rem !important;
+                font-weight: 800 !important;
             }
             
             .filter-section {
@@ -423,28 +449,68 @@ if st.session_state.screening_results is not None:
         with chart_col2:
             if len(results_df) > 0 and 'RSI' in results_df.columns:
                 # RSI distribution
+                # Enhanced RSI Distribution Chart
                 if st.session_state.dark_mode:
                     bar_color = '#4facfe'
                     paper_bgcolor = 'rgba(0,0,0,0)'
                     plot_bgcolor = 'rgba(0,0,0,0)'
                     font_color = '#e2e8f0'
+                    grid_color = '#4a5568'
+                    line_colors = ['#ff6b6b', '#4ecdc4', '#45b7d1']
                 else:
                     bar_color = '#667eea'
                     paper_bgcolor = 'rgba(0,0,0,0)'
                     plot_bgcolor = 'rgba(0,0,0,0)'
                     font_color = '#262730'
+                    grid_color = '#e9ecef'
+                    line_colors = ['#e74c3c', '#2ecc71', '#3498db']
                 
-                fig_rsi = px.histogram(results_df, x='RSI', 
-                                     title="📈 RSI Distribution",
-                                     nbins=10,
-                                     color_discrete_sequence=[bar_color])
+                fig_rsi = px.histogram(
+                    results_df, 
+                    x='RSI', 
+                    title="� RSI Distribution Analysis",
+                    nbins=15,
+                    color_discrete_sequence=[bar_color],
+                    labels={'RSI': 'RSI Value', 'count': 'Number of Stocks'},
+                    opacity=0.8
+                )
+                
+                # Add reference lines for RSI zones
+                fig_rsi.add_vline(x=30, line_dash="dash", line_color=line_colors[0], 
+                                annotation_text="Oversold (30)", annotation_position="top")
+                fig_rsi.add_vline(x=70, line_dash="dash", line_color=line_colors[0], 
+                                annotation_text="Overbought (70)", annotation_position="top")
+                fig_rsi.add_vline(x=50, line_dash="dot", line_color=line_colors[1], 
+                                annotation_text="Neutral (50)", annotation_position="bottom")
+                
+                # Enhanced layout
                 fig_rsi.update_layout(
                     showlegend=False,
                     paper_bgcolor=paper_bgcolor,
                     plot_bgcolor=plot_bgcolor,
                     font_color=font_color,
-                    title_font_color=font_color
+                    title_font_color=font_color,
+                    title_font_size=16,
+                    xaxis=dict(
+                        gridcolor=grid_color,
+                        title_font_size=14,
+                        tickfont_size=12,
+                        range=[0, 100]
+                    ),
+                    yaxis=dict(
+                        gridcolor=grid_color,
+                        title_font_size=14,
+                        tickfont_size=12
+                    ),
+                    margin=dict(l=40, r=40, t=60, b=40),
+                    height=400
                 )
+                
+                # Add hover template
+                fig_rsi.update_traces(
+                    hovertemplate='<b>RSI Range:</b> %{x}<br><b>Count:</b> %{y}<extra></extra>'
+                )
+                
                 st.plotly_chart(fig_rsi, use_container_width=True)
         
         # Interactive data table
