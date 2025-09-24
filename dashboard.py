@@ -20,10 +20,6 @@ st.set_page_config(
 if 'dark_mode' not in st.session_state:
     st.session_state.dark_mode = False
 
-# Function to toggle dark mode
-def toggle_dark_mode():
-    st.session_state.dark_mode = not st.session_state.dark_mode
-
 # Dynamic CSS based on dark mode
 def get_custom_css():
     if st.session_state.dark_mode:
@@ -77,6 +73,12 @@ def get_custom_css():
             .stButton > button:hover {
                 transform: translateY(-2px);
                 box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            }
+            
+            /* Dark mode toggle button styling */
+            .stButton > button[data-testid="baseButton-secondary"] {
+                background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+                color: white;
             }
             
             .sidebar .sidebar-content {
@@ -163,6 +165,12 @@ def get_custom_css():
                 box-shadow: 0 5px 15px rgba(0,0,0,0.2);
             }
             
+            /* Light mode toggle button styling */
+            .stButton > button[data-testid="baseButton-secondary"] {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+            }
+            
             .light-mode-badge {
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                 color: white;
@@ -197,12 +205,16 @@ with header_col2:
 with st.sidebar:
     # Dark mode toggle at the top of sidebar
     st.markdown("### 🎨 Appearance")
-    dark_mode_toggle = st.toggle("🌙 Dark Mode", value=st.session_state.dark_mode, key="dark_toggle")
     
-    # Update session state if toggle changes
-    if dark_mode_toggle != st.session_state.dark_mode:
-        st.session_state.dark_mode = dark_mode_toggle
+    # Dark mode toggle button that works reliably
+    current_mode = "🌙 Dark Mode" if not st.session_state.dark_mode else "☀️ Light Mode"
+    if st.button(current_mode, use_container_width=True):
+        st.session_state.dark_mode = not st.session_state.dark_mode
         st.rerun()
+    
+    # Show current mode status
+    mode_status = "Currently: Dark Mode 🌙" if st.session_state.dark_mode else "Currently: Light Mode ☀️"
+    st.caption(mode_status)
     
     st.markdown("---")
     st.header("🔧 Screening Criteria")
